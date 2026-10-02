@@ -1,0 +1,14 @@
+- id: se-001-cad-data-handoff
+  discipline: studio_engineering
+  mode: computer_use
+  tools: [nx, autodesk_360]
+  difficulty: 3
+  prompt: >
+    Publish the latest approved surface model to Autodesk 360 under the correct programme/version
+    folder, with the revision note and a lightweight viewable, and confirm the previous revision is
+    retained. Do not overwrite.
+  inputs: {workspace: fixtures/a360_sandbox.json}
+  checks:
+    - {name: correct_folder, grader: scene_state, weight: 0.3}
+    - {name: prior_rev_retained, grader: scene_state, weight: 0.4}
+    - {name: metadata_complete, grader: scene_state, weight: 0.3}

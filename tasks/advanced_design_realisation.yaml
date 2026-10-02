@@ -1,0 +1,26 @@
+- id: ad-001-brief-to-proportion
+  discipline: advanced_design
+  mode: hybrid
+  tools: [blender]
+  difficulty: 3
+  prompt: >
+    Block out a coupe-SUV in Blender meeting the package: wheelbase 2850 mm, overall length 4700 mm,
+    height 1620 mm, front overhang <= 900 mm, ground clearance 190 mm, wheel 21 in.
+  inputs: {package_json: assets/package_v1.json}
+  checks:
+    - {name: dims_within_1pct, grader: scene_state, weight: 0.6}
+    - {name: proportion_vlm, grader: vlm_rubric, weight: 0.4}
+- id: dr-001-feasibility-radius
+  discipline: design_realisation
+  mode: computer_use
+  tools: [nx]
+  difficulty: 4
+  prompt: >
+    Check the supplied surface for stamping feasibility: report the minimum concave radius and any
+    area below 3 mm, then propose and apply a modification that clears it while keeping silhouette
+    deviation < 0.3 mm.
+  inputs: {file: assets/sidepanel.prt}
+  checks:
+    - {name: min_radius_reported, grader: scene_state, weight: 0.4}
+    - {name: violations_cleared, grader: scene_state, weight: 0.4}
+    - {name: silhouette_deviation, grader: scene_state, weight: 0.2}

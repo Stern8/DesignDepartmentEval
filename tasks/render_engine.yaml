@@ -1,0 +1,39 @@
+- id: re-001-prism-dispersion
+  discipline: render_engine
+  mode: code_gen
+  tools: [python, threejs]
+  difficulty: 4
+  prompt: >
+    Write a ray tracer from scratch (no rendering libraries; numpy / WebGL / three.js allowed only for
+    display) that renders a 60 degree SF11 prism with spectral dispersion. Emit
+    deviation.json: exit-ray angle for wavelengths 450..650 nm in 25 nm steps.
+  inputs: {material: SF11, apex_deg: 60, incidence_deg: 65}
+  checks:
+    - {name: sellmeier_accuracy, grader: optics.grade_prism_render, weight: 0.5}
+    - {name: visible_rainbow_vlm, grader: vlm_rubric, weight: 0.2}
+    - {name: runs_clean_under_60s, grader: sandbox, weight: 0.3}
+- id: re-002-white-furnace
+  discipline: render_engine
+  mode: code_gen
+  tools: [python]
+  difficulty: 3
+  prompt: >
+    Implement a path tracer and pass the white-furnace test: unit-albedo diffuse sphere inside a
+    unit-radiance environment must render as 1.0 everywhere within 2%.
+  inputs: {}
+  checks:
+    - {name: furnace_error, grader: optics.furnace_error, weight: 0.7}
+    - {name: no_fireflies, grader: sandbox, weight: 0.3}
+- id: re-003-caustic-glass-sphere
+  discipline: render_engine
+  mode: code_gen
+  tools: [python, threejs]
+  difficulty: 5
+  prompt: >
+    Render a glass sphere (n=1.5) on a diffuse plane lit by a small area light. A focused caustic
+    must appear under the sphere. Use photon mapping or bidirectional/light tracing.
+  inputs: {}
+  checks:
+    - {name: caustic_peak_ratio, grader: render.contrast_ratio, weight: 0.4}
+    - {name: caustic_position_vlm, grader: vlm_rubric, weight: 0.3}
+    - {name: fresnel_correct, grader: optics.fresnel_unpolarized, weight: 0.3}

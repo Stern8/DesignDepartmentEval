@@ -1,0 +1,28 @@
+- id: vis-001-studio-setup-shoulder-line
+  discipline: visualisation
+  mode: computer_use
+  tools: [vred, blender]
+  difficulty: 3
+  prompt: >
+    Light the supplied vehicle so the shoulder line reads as one crisp highlight from front-3/4,
+    key from camera-left, with a visible ground contact shadow and no clipped highlights >0.5%.
+  inputs: {file: assets/vehicle_studio.vpb}
+  checks:
+    - {name: key_from_left, grader: render.key_light_direction, weight: 0.25}
+    - {name: contact_shadow, grader: render.ground_shadow_present, weight: 0.15}
+    - {name: clipping, grader: render.clipped_fraction, weight: 0.2}
+    - {name: highlight_continuity_vlm, grader: vlm_rubric, weight: 0.4}
+- id: vis-002-rig-door-opening
+  discipline: visualisation
+  mode: computer_use
+  tools: [blender, unreal]
+  difficulty: 4
+  prompt: >
+    Rig the driver door with a hinge axis at the A-pillar line, limit 0-70 degrees, and animate it
+    opening over 2 s. No panel may intersect the body at any frame.
+  inputs: {file: assets/car_unrigged.blend}
+  checks:
+    - {name: hinge_axis_error_deg, grader: scene_state, weight: 0.3}
+    - {name: rotation_limits, grader: scene_state, weight: 0.2}
+    - {name: no_intersection_all_frames, grader: scene_state, weight: 0.3}
+    - {name: duration_2s, grader: scene_state, weight: 0.2}

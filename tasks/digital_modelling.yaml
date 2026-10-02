@@ -1,0 +1,26 @@
+- id: dm-001-g2-blend
+  discipline: digital_modelling
+  mode: computer_use
+  tools: [nx, catia]
+  difficulty: 4
+  prompt: >
+    Fender and door panels are supplied. Create the blend surface across the shut line so the join
+    to both neighbours is G2 (curvature continuous). Export edge samples as JSON.
+  inputs: {file: assets/fender_door.prt, export_schema: edge_samples_v1}
+  checks:
+    - {name: join_a_g2, grader: continuity.grade_join, weight: 0.4, params: {required: G2}}
+    - {name: join_b_g2, grader: continuity.grade_join, weight: 0.4, params: {required: G2}}
+    - {name: no_extra_patches, grader: scene_state, weight: 0.2}
+- id: dm-002-diagnose-g1-break
+  discipline: digital_modelling
+  mode: computer_use
+  tools: [catia]
+  difficulty: 3
+  prompt: >
+    A hood surface has a hidden G1 break. Run a curvature-comb / zebra analysis, locate the break
+    (report UV and mm position), and fix it without moving the outer boundary > 0.05 mm.
+  inputs: {file: assets/hood_broken.CATPart}
+  checks:
+    - {name: location_within_2mm, grader: scene_state, weight: 0.3}
+    - {name: g1_restored, grader: continuity.grade_join, weight: 0.5, params: {required: G1}}
+    - {name: boundary_drift, grader: scene_state, weight: 0.2}
