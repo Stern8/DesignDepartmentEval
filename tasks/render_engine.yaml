@@ -1,39 +1,78 @@
 - id: re-001-prism-dispersion
   discipline: render_engine
   mode: code_gen
-  tools: [python, threejs]
+  tools:
+  - python
   difficulty: 4
-  prompt: >
-    Write a ray tracer from scratch (no rendering libraries; numpy / WebGL / three.js allowed only for
-    display) that renders a 60 degree SF11 prism with spectral dispersion. Emit
-    deviation.json: exit-ray angle for wavelengths 450..650 nm in 25 nm steps.
-  inputs: {material: SF11, apex_deg: 60, incidence_deg: 65}
+  prompt: 'Write a ray tracer from scratch (numpy only; no rendering libraries) that refracts light through
+    a 60 degree SF11 prism at 65 degrees incidence with Sellmeier dispersion. Contract: `main.py prism
+    <outdir>` writes deviation.json {wavelengths_nm, exit_deviation_deg} for 450..650 nm in 25 nm steps.
+    SF11 Sellmeier coefficients are not provided; recall or derive them.'
+  inputs:
+    material: SF11
+    apex_deg: 60
+    incidence_deg: 65
+    contract: designbench/render_engine/harness.py
+    task: prism
   checks:
-    - {name: sellmeier_accuracy, grader: optics.grade_prism_render, weight: 0.5}
-    - {name: visible_rainbow_vlm, grader: vlm_rubric, weight: 0.2}
-    - {name: runs_clean_under_60s, grader: sandbox, weight: 0.3}
+  - name: sellmeier_accuracy
+    grader: render_engine.prism_deviation
+    weight: 0.7
+    params:
+      material: SF11
+      apex: 60
+      incidence: 65
+  - name: runs_clean_under_60s
+    grader: render_engine.sandbox
+    weight: 0.3
+    params:
+      max_seconds: 60
 - id: re-002-white-furnace
   discipline: render_engine
   mode: code_gen
-  tools: [python]
+  tools:
+  - python
   difficulty: 3
-  prompt: >
-    Implement a path tracer and pass the white-furnace test: unit-albedo diffuse sphere inside a
-    unit-radiance environment must render as 1.0 everywhere within 2%.
-  inputs: {}
+  prompt: 'Implement a path tracer and pass the white-furnace test. Contract: `main.py furnace <outdir>`
+    writes furnace.npy (H,W,3) and mask.npy (H,W bool, object pixels) for a scene of two unit-albedo diffuse
+    unit spheres at (-1.1,0,3) and (1.1,0,3) in a uniform unit-radiance environment, camera at origin
+    looking +z, 40 deg fov. Object pixels must be 1.0 within 2%.'
+  inputs:
+    contract: designbench/render_engine/harness.py
+    task: furnace
   checks:
-    - {name: furnace_error, grader: optics.furnace_error, weight: 0.7}
-    - {name: no_fireflies, grader: sandbox, weight: 0.3}
+  - name: furnace_error
+    grader: render_engine.furnace_error
+    weight: 0.7
+    params:
+      tol: 0.02
+  - name: runs_clean_under_60s
+    grader: render_engine.sandbox
+    weight: 0.3
+    params:
+      max_seconds: 60
 - id: re-003-caustic-glass-sphere
   discipline: render_engine
   mode: code_gen
-  tools: [python, threejs]
+  tools:
+  - python
   difficulty: 5
-  prompt: >
-    Render a glass sphere (n=1.5) on a diffuse plane lit by a small area light. A focused caustic
-    must appear under the sphere. Use photon mapping or bidirectional/light tracing.
-  inputs: {}
+  prompt: 'Render a glass sphere (n=1.5, r=1, centre (0,1,0)) on a diffuse floor y=0 lit by a small light
+    directly overhead. Use photon mapping or light/bidirectional tracing. Contract: `main.py caustic <outdir>`
+    writes render.png, a top-down orthographic view of world x,z in [-4,4]. A focused caustic must appear
+    beneath the sphere, ringed by its shadow.'
+  inputs:
+    contract: designbench/render_engine/harness.py
+    task: caustic
   checks:
-    - {name: caustic_peak_ratio, grader: render.contrast_ratio, weight: 0.4}
-    - {name: caustic_position_vlm, grader: vlm_rubric, weight: 0.3}
-    - {name: fresnel_correct, grader: optics.fresnel_unpolarized, weight: 0.3}
+  - name: caustic_focus
+    grader: render_engine.caustic
+    weight: 0.7
+    params:
+      min_peak_ratio: 5.0
+      max_offset: 0.4
+  - name: runs_clean_under_120s
+    grader: render_engine.sandbox
+    weight: 0.3
+    params:
+      max_seconds: 120

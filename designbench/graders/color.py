@@ -14,6 +14,14 @@ def hex_to_rgb(h: str) -> tuple[int, int, int]:
     return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))  # type: ignore[return-value]
 
 
+def linear_to_hex(rgb_linear) -> str:
+    """Blender linear scene-referred RGB (0-1) -> sRGB hex (Standard view transform)."""
+    c = np.clip(np.asarray(rgb_linear[:3], dtype=float), 0, 1)
+    enc = np.where(c <= 0.0031308, c * 12.92, 1.055 * c ** (1 / 2.4) - 0.055)
+    r, g, b = np.round(enc * 255).astype(int)
+    return f"{r:02X}{g:02X}{b:02X}"
+
+
 def srgb_to_lab(rgb) -> np.ndarray:
     c = np.asarray(rgb, dtype=float) / 255.0
     lin = np.where(c <= 0.04045, c / 12.92, ((c + 0.055) / 1.055) ** 2.4)

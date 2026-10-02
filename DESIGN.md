@@ -31,20 +31,25 @@
 Grader kinds: python functions in `designbench/graders`, `scene_state` (assertions on exported JSON, to be implemented per tool adapter), `vlm_rubric`, `sandbox` (exit status / runtime / determinism).
 
 ## Implemented now
-- `graders/color.py`: hex parsing, sRGB->Lab, CIEDE2000 (verified against Sharma reference pair), region median, scoring.
-- `graders/continuity.py`: G0 gap, G1 angle, curvature jump, polyline curvature, tiered join grading.
-- `graders/render.py`: key-light direction, contrast ratio, clipping, contact-shadow, colour-temperature bias.
-- `graders/optics.py`: Sellmeier IOR, prism deviation, Fresnel, white-furnace, prism-render grader.
-- 11 seed tasks across all disciplines; `pytest` covers graders and task loading.
+- **Graders** (`designbench/graders/`): `color` (hex, CIEDE2000, linear->sRGB), `continuity` (G0/G1/G2), `render` (light/shadow stats), `optics` (Sellmeier prism, Fresnel), `scene_state` (Blender scene-JSON checks: exact hex from material, view transform, lights untouched, package dimensions, rotation limits, hinge axis, animation duration, per-frame intersections), `render_engine` (furnace, prism deviation, caustic focus, sandbox run status).
+- **Blender track** (`designbench/blender/`): `make_assets.py` builds start files procedurally; `export_state.py` dumps `scene_state_v1` JSON. **Both scripts have not been run in Blender yet** (none in the authoring sandbox); only their syntax was checked. The graders are tested on hand-built JSON.
+- **Render-engine track** (`designbench/render_engine/`): subprocess harness with timeout (`main.py <task> <outdir>` contract), plus reference prism (vector ray trace) and furnace (two-sphere path tracer) solutions in `examples/reference_submission/`, validated end to end. No reference caustic renderer yet; the caustic grader is tested on synthetic images only.
+- `python -m designbench.run <task_id> --state ... --baseline ... --outdir ...` grades one task; checks without an implemented grader (e.g. `vlm_rubric`) are reported as `unimplemented` and score 0.
+- 11 seed tasks; 19 tests (`pytest`).
 
-## Not yet built (next steps)
-1. Tool adapters + VM images (Blender first: headless Python gives cheap scene-state export; then VRED/Unreal, then NX/CATIA, which need licences).
-2. Assets (`assets/*`): none exist yet; tasks reference placeholders.
-3. VLM-rubric judge with fixed rubric, reference images and multi-sample agreement.
-4. Harness loop (screenshot -> action), step/time budgets, trajectory logging.
-5. More render-engine tasks: spectral upsampling, thin-film, volumetric, MIS correctness, three.js headless harness.
-6. Calibration: human expert baseline per task, difficulty tuning, and held-out variants (randomised hex/dimensions) to resist memorisation.
+## Known limits
+- The harness uses a plain subprocess, not a sandbox: run untrusted model code in a container/VM.
+- `package_dims` assumes `Body`, `Wheel_FL`, `Wheel_RL` naming, +Y forward, Z up.
+- The caustic grader checks focus, position and shadow ring from the image only; it can't verify the physics.
+
+## Next steps
+1. Run `make_assets.py` / `export_state.py` in real Blender 4.x and fix whatever breaks; add a Blender GUI computer-use harness (screenshot -> action) on top.
+2. Reference caustic renderer (photon mapping) to validate the caustic grader; more render-engine tasks (spectral upsampling, thin film, volumetrics, MIS).
+3. VLM-rubric judge with fixed rubric and multi-sample agreement.
+4. Calibration: human expert baselines, randomised variants (hex, dimensions) to resist memorisation.
+5. Other tool adapters (VRED, Unreal, NX, CATIA, A360).
 
 ## Open items
 - Paste the BlenderBench concepts you like so they can be mapped onto the above (task structure, scoring, harness).
 - Which licensed tools are actually available for the harness?
+- BlenderBench concepts still not incorporated (post was unreachable).

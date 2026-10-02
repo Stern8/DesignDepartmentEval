@@ -1,26 +1,49 @@
 - id: cmf-001-exact-hex
   discipline: cmf
   mode: computer_use
-  tools: [blender]
+  tools:
+  - blender
   difficulty: 2
-  prompt: >
-    Open cmf_start.blend. Set the body paint to sRGB hex #1F3A5C (display-referred, Standard view
-    transform) and render one frame. Do not change lights. The body panel must read exactly this
-    colour in the flat-lit calibration pass.
-  inputs: {file: assets/cmf_start.blend, calibration_pass: flat_albedo}
+  prompt: 'Open cmf_start.blend. Set the body paint to sRGB hex #1F3A5C (display-referred, Standard view
+    transform) and render one frame. Do not change lights. The body panel must read exactly this colour
+    in the flat-lit calibration pass.
+
+    '
+  inputs:
+    generate: blender -b --python designbench/blender/make_assets.py -- assets/ (cmf_start.blend)
+    baseline: 'export_state.py run on the untouched cmf_start.blend'
   checks:
-    - {name: hex_exact, grader: color.score_hex, weight: 0.6, params: {target: 1F3A5C}}
-    - {name: view_transform_standard, grader: scene_state, weight: 0.2}
-    - {name: lights_untouched, grader: scene_state, weight: 0.2}
+  - name: hex_exact
+    grader: scene_state.hex_exact
+    weight: 0.6
+    params:
+      material: BodyPaint
+      target: 1F3A5C
+  - name: view_transform_standard
+    grader: scene_state.view_transform_standard
+    weight: 0.2
+  - name: lights_untouched
+    grader: scene_state.lights_untouched
+    weight: 0.2
 - id: cmf-002-colour-vs-gloss-trap
   discipline: cmf
   mode: computer_use
-  tools: [vred]
+  tools:
+  - vred
   difficulty: 4
-  prompt: >
-    Match the supplied physical-sample photo of a tri-coat pearl white. Produce a material whose
+  prompt: 'Match the supplied physical-sample photo of a tri-coat pearl white. Produce a material whose
     flat-albedo is within dE2000<=1.0 of #E9E6DF and whose flake sparkle is visible at the grazing angle.
-  inputs: {file: assets/pearl_ref.png}
+
+    '
+  inputs:
+    file: assets/pearl_ref.png
   checks:
-    - {name: albedo_de, grader: color.score_hex, weight: 0.5, params: {target: E9E6DF, pass_de: 1.0}}
-    - {name: flake_sparkle_vlm, grader: vlm_rubric, weight: 0.5}
+  - name: albedo_de
+    grader: color.score_hex
+    weight: 0.5
+    params:
+      target: E9E6DF
+      pass_de: 1.0
+  - name: flake_sparkle_vlm
+    grader: vlm_rubric
+    weight: 0.5

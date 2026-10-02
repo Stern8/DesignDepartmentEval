@@ -1,26 +1,51 @@
 - id: ad-001-brief-to-proportion
   discipline: advanced_design
   mode: hybrid
-  tools: [blender]
+  tools:
+  - blender
   difficulty: 3
-  prompt: >
-    Block out a coupe-SUV in Blender meeting the package: wheelbase 2850 mm, overall length 4700 mm,
-    height 1620 mm, front overhang <= 900 mm, ground clearance 190 mm, wheel 21 in.
-  inputs: {package_json: assets/package_v1.json}
+  prompt: 'Block out a coupe-SUV in Blender (objects named Body, Wheel_FL, Wheel_RL; +Y forward, Z up;
+    metres) meeting the package: wheelbase 2850 mm, overall length 4700 mm, height 1620 mm, front overhang
+    <= 900 mm, ground clearance 190 mm, 21 in wheels.'
+  inputs:
+    package: &id001
+      length_mm: 4700
+      height_mm: 1620
+      wheelbase_mm: 2850
+      wheel_dia_in: 21
+      clearance_mm: 190
+      front_overhang_max_mm: 900
+    naming: objects Body, Wheel_FL, Wheel_RL; +Y forward, Z up, metres
   checks:
-    - {name: dims_within_1pct, grader: scene_state, weight: 0.6}
-    - {name: proportion_vlm, grader: vlm_rubric, weight: 0.4}
+  - name: dims_within_1pct
+    grader: scene_state.package_dims
+    weight: 0.6
+    params:
+      package: *id001
+      tol: 0.01
+  - name: proportion_vlm
+    grader: vlm_rubric
+    weight: 0.4
 - id: dr-001-feasibility-radius
   discipline: design_realisation
   mode: computer_use
-  tools: [nx]
+  tools:
+  - nx
   difficulty: 4
-  prompt: >
-    Check the supplied surface for stamping feasibility: report the minimum concave radius and any
-    area below 3 mm, then propose and apply a modification that clears it while keeping silhouette
+  prompt: 'Check the supplied surface for stamping feasibility: report the minimum concave radius and
+    any area below 3 mm, then propose and apply a modification that clears it while keeping silhouette
     deviation < 0.3 mm.
-  inputs: {file: assets/sidepanel.prt}
+
+    '
+  inputs:
+    file: assets/sidepanel.prt
   checks:
-    - {name: min_radius_reported, grader: scene_state, weight: 0.4}
-    - {name: violations_cleared, grader: scene_state, weight: 0.4}
-    - {name: silhouette_deviation, grader: scene_state, weight: 0.2}
+  - name: min_radius_reported
+    grader: scene_state
+    weight: 0.4
+  - name: violations_cleared
+    grader: scene_state
+    weight: 0.4
+  - name: silhouette_deviation
+    grader: scene_state
+    weight: 0.2
