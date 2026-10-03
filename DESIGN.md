@@ -35,7 +35,7 @@ Grader kinds: python functions in `designbench/graders`, `scene_state` (assertio
 - **Blender track** (`designbench/blender/`): `make_assets.py` builds start files procedurally; `export_state.py` dumps `scene_state_v1` JSON. **Both scripts have not been run in Blender yet** (none in the authoring sandbox); only their syntax was checked. The graders are tested on hand-built JSON.
 - **Render-engine track** (`designbench/render_engine/`): subprocess harness with timeout (`main.py <task> <outdir>` contract), plus reference prism (vector ray trace) and furnace (two-sphere path tracer) solutions in `examples/reference_submission/`, validated end to end. No reference caustic renderer yet; the caustic grader is tested on synthetic images only.
 - `python -m designbench.run <task_id> --state ... --baseline ... --outdir ...` grades one task; checks without an implemented grader (e.g. `vlm_rubric`) are reported as `unimplemented` and score 0.
-- 11 seed tasks; 19 tests (`pytest`).
+- 12 seed tasks; 19 tests (`pytest`).
 
 ## Known limits
 - The harness uses a plain subprocess, not a sandbox: run untrusted model code in a container/VM.
